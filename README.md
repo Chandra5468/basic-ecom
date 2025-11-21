@@ -61,4 +61,6 @@ After adding migrations file
 
 6. In new terminal or if server not runnning in same terminal do
     goose up
-    
+
+7. Install this for all dependency and migrations to work
+    github.com/jackc/pgx/v5
