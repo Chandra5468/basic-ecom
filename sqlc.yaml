@@ -6,7 +6,7 @@ sql:
     gen:
       go:
         package: "repo" # mention your wishful package name where generated code gets stored
-        out: "./internal/adapters/postgres/sqlc" # create folder as per requirement
+        out: "./internal/adapters/postgresql/sqlc" # create folder as per requirement
         sql_package: "pgx/v5" # engine which is used to generate
         emit_json_tags: true
         emit_interface: true # generate query interfaces to pass in our dependencies (dependency injection)
