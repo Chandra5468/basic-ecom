@@ -9,6 +9,53 @@ import (
 	"context"
 )
 
+const createOrder = `-- name: CreateOrder :one
+INSERT INTO orders(
+    customer_id
+)VALUES($1) RETURNING id, customer_id, created_at
+`
+
+func (q *Queries) CreateOrder(ctx context.Context, customerID int64) (Order, error) {
+	row := q.db.QueryRow(ctx, createOrder, customerID)
+	var i Order
+	err := row.Scan(&i.ID, &i.CustomerID, &i.CreatedAt)
+	return i, err
+}
+
+const createOrderItem = `-- name: CreateOrderItem :one
+INSERT INTO order_items (
+    order_id,
+    product_id,
+    quantity,
+    price_cents
+) VALUES($1, $2, $3, $4) RETURNING id, order_id, product_id, quantity, price_cents
+`
+
+type CreateOrderItemParams struct {
+	OrderID    int64 `json:"order_id"`
+	ProductID  int64 `json:"product_id"`
+	Quantity   int32 `json:"quantity"`
+	PriceCents int32 `json:"price_cents"`
+}
+
+func (q *Queries) CreateOrderItem(ctx context.Context, arg CreateOrderItemParams) (OrderItem, error) {
+	row := q.db.QueryRow(ctx, createOrderItem,
+		arg.OrderID,
+		arg.ProductID,
+		arg.Quantity,
+		arg.PriceCents,
+	)
+	var i OrderItem
+	err := row.Scan(
+		&i.ID,
+		&i.OrderID,
+		&i.ProductID,
+		&i.Quantity,
+		&i.PriceCents,
+	)
+	return i, err
+}
+
 const findProductByID = `-- name: FindProductByID :one
 SELECT id, names, price_in_centers, quantity, created_at FROM products where id = $1
 `
@@ -56,4 +103,26 @@ func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateProductQuantity = `-- name: UpdateProductQuantity :one
+UPDATE products SET quantity = $1 WHERE id = $2 RETURNING id, names, price_in_centers, quantity, created_at
+`
+
+type UpdateProductQuantityParams struct {
+	Quantity int32 `json:"quantity"`
+	ID       int64 `json:"id"`
+}
+
+func (q *Queries) UpdateProductQuantity(ctx context.Context, arg UpdateProductQuantityParams) (Product, error) {
+	row := q.db.QueryRow(ctx, updateProductQuantity, arg.Quantity, arg.ID)
+	var i Product
+	err := row.Scan(
+		&i.ID,
+		&i.Names,
+		&i.PriceInCenters,
+		&i.Quantity,
+		&i.CreatedAt,
+	)
+	return i, err
 }

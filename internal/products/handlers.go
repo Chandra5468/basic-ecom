@@ -20,7 +20,7 @@ func NewHandler(service Service) *handler {
 func (h *handler) ListProducts(w http.ResponseWriter, r *http.Request) {
 	// 1. call the service -> List Product
 	// 2. Return JSON in an http response
-	err := h.service.ListProducts(r.Context())
+	products, err := h.service.ListProducts(r.Context())
 	if err != nil {
 		slog.Error("db list products error ", "error", err)
 		// notifying user
@@ -28,6 +28,6 @@ func (h *handler) ListProducts(w http.ResponseWriter, r *http.Request) {
 		// json.Write(w, http.StatusInternalServerError, "error from db for ")
 		return
 	}
-	products := []string{"hello", "world"}
+
 	json.Write(w, http.StatusOK, products)
 }

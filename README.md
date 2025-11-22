@@ -64,3 +64,12 @@ After adding migrations file
 
 7. Install this for all dependency and migrations to work
     github.com/jackc/pgx/v5
+
+---------------------------------
+    For new tables
+
+1. goose -s create create_orders sql
+
+2. goose up
+
+3. sqlc generate

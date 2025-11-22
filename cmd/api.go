@@ -5,9 +5,12 @@ import (
 	"net/http"
 	"time"
 
+	repo "github.com/Chandra5468/basic-ecom/internal/adapters/postgresql/sqlc"
+	"github.com/Chandra5468/basic-ecom/internal/orders"
 	"github.com/Chandra5468/basic-ecom/internal/products"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jackc/pgx/v5"
 )
 
 // mount
@@ -31,10 +34,14 @@ func (app *application) mount() http.Handler {
 	})
 
 	// Dependency injection of service (postgres methods of products) into handler
-	productService := products.NewService()
+	productService := products.NewService(repo.New(app.db))
 	// dependency injection of handlers(w, r) into api (transport http,grpc layer)
 	productsHandler := products.NewHandler(productService)
 	r.Get("/products", productsHandler.ListProducts)
+
+	ordersService := orders.NewService(repo.New(app.db), app.db)
+	ordersHandler := orders.NewHandler(ordersService)
+	r.Post("/orders", ordersHandler.PlaceOrder)
 	return r
 }
 
@@ -56,6 +63,7 @@ type application struct {
 	config config
 	// logger
 	// db driver
+	db *pgx.Conn
 }
 
 type config struct {

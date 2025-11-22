@@ -33,6 +33,7 @@ func main() {
 	logger.Info("connected to database", "dsn", cfg.db.dsn)
 	api := &application{
 		config: cfg,
+		db:     conn,
 	}
 
 	// passing this as a dependency. So all files make logs to this logger
